@@ -1,0 +1,58 @@
+/* Eddy's Blog — 站点级样式覆盖
+ * 通过 _config.butterfly.yml 的 inject.head 引入
+ * （用注入而不是改主题源码，这样 npm update 不会丢）
+ */
+
+/* ── 页面横幅调高 ────────────────────────────────────────────
+ * 主题默认值：
+ *   普通页面 #page-header.not-home-page  = 400px（小屏 280px）
+ *   文章页   #page-header.post-bg        = 400px（小屏 360px）
+ *   首页     #page-header.full_page      = 100vh（不动）
+ *
+ * 为什么调高：横幅容器越扁，background-size: cover 裁掉的图片内容越多。
+ * 400px 高、1440px 宽的容器比例约 3.6:1，一张 16:9 的图只能露出中间约 40%。
+ *
+ * 只作用于 ≥768px：小屏横幅本来就矮，再调高会把正文挤出首屏。
+ */
+@media screen and (min-width: 768px) {
+  #page-header.not-home-page,
+  #page-header.post-bg {
+    height: 520px !important;
+  }
+
+  /* 页面标题原本是固定 top: 200px（在 400px 高度里刚好居中）。
+     横幅变高后要跟着重新居中，否则会贴在偏上的位置。
+     文章页的标题走的是 #post-info { bottom: 30px }，底部对齐，不用管。 */
+  #page-header #page-site-info {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+}
+
+/* ── 侧栏头像卡：标签 / 分类 两个统计改成不可点 ──────────────────
+ * .site-data 里依次是 文章 / 标签 / 分类 三个 <a>。
+ * 分类目前是 0，点进去是空页面；这两个入口用户都不想要，所以后两个设为不可点。
+ * pointer-events: none 会一并屏蔽 :hover，所以悬停也不再变色、不显示手型光标。
+ */
+.site-data > a:nth-child(2),
+.site-data > a:nth-child(3) {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ── 友链卡片：桌面端改成一行两张 ────────────────────────────────
+ * 主题桌面端是每行 3 张（width: calc(100% / 3 - 15px)），在 786px 宽的列表里
+ * 每张只有 240px，扣掉 60px 头像 + 20px 边距后文字区只剩 160px。
+ * 而 .flink-item-desc 被套了 .limit-one-line（单行 + 省略号），
+ * 中文简介十几个字就会被截成「一个刚刚入门的pwner，…」。
+ *
+ * 改成每行 2 张后卡片 368px、文字区 288px，常见长度的简介一行就能放下。
+ * 这个值就是主题自己在 ≤1024px 时用的值（+maxWidth1024 里的 calc(50% - 15px)），
+ * 等于把平板端的排版提升到桌面端，视觉上仍是主题原本的卡片样式。
+ * 用 #article-container 起头（1,2,0）压过主题的 .container .flink ...（0,3,0）。
+ */
+@media screen and (min-width: 1024px) {
+  #article-container .flink-list > .flink-list-item {
+    width: calc(50% - 15px);
+  }
+}
