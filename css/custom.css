@@ -56,3 +56,27 @@
     width: calc(50% - 15px);
   }
 }
+
+/* ── 侧栏标签云：所有标签统一大小和颜色 ──────────────────────────
+ * 主题默认按「文章数」缩放字号并做颜色渐变，这两个值写死在
+ * node_modules/hexo-theme-butterfly/layout/includes/widget/card_tags.pug 里
+ * （tagcloud({ min_font: 1.1, max_font: 1.5, start_color: '#999', end_color: '#99a9bf' })），
+ * 配置文件里没有开关可以改。实测效果：
+ *   1 篇 -> font-size: 1.1em; color: #999
+ *   2 篇 -> font-size: 1.5em; color: #99a9bf
+ * 于是文章多的标签又大又亮，几个标签排在一起参差不齐。
+ *
+ * 这里统一成同一号字 + 同一个颜色：
+ *   字号取主题自己的最小值 1.1em（多数标签本来就是这么大，改完等于只有多篇的标签缩小）
+ *   颜色取主题渐变的终点色 #99a9bf（冷调蓝灰，比 #999 略亮，在深色侧栏上更清楚）
+ *
+ * 字号/颜色是写在 HTML 的 inline style 上的，内联样式优先级最高，
+ * 必须 !important 才压得住。
+ * 主题的 :hover 规则（.card-tag-cloud a:hover）比这里更具体，悬停变色依然正常。
+ *
+ * 想统一改成别的字号，只改下面这一行数字即可。
+ */
+.card-tag-cloud a {
+  font-size: 1.1em !important;
+  color: #99a9bf !important;
+}
