@@ -80,3 +80,38 @@
   font-size: 1.1em !important;
   color: #99a9bf !important;
 }
+
+/* ── 文章加密框：跟随站点暗色 ────────────────────────────────────
+ * hexo-blog-encrypt 自带的 hbe.style.css 只在 @media (prefers-color-scheme: dark)
+ * 下切暗色，也就是「跟随操作系统」。本站的暗色却是主题挂在
+ * <html data-theme="dark"> 上的（layout/includes/layout.pug 第 9 行），两者不同步：
+ * 系统亮色 + 站点暗色时，密码框会是浅灰底(#f0f0f0) + 灰标签(#696969)，很扎眼。
+ *
+ * 所以按 data-theme 属性再补一套，颜色对齐站点主色 #5C7CFA。
+ * 主题配置里 display_mode: dark 是默认暗色，这套属于常态。
+ * 浅色模式（data-theme="light"）仍用插件自带的默认值，不用管。
+ */
+[data-theme="dark"] .hbe-input-field {
+  background: #2b2f38;
+  color: #e6e6e6;
+}
+[data-theme="dark"] .hbe-input-label {
+  color: #cfd6e4;
+}
+[data-theme="dark"] .hbe-button {
+  background: #5C7CFA;
+  border-bottom-color: #4462d6;
+  color: #fff;
+  text-shadow: none;
+}
+[data-theme="dark"] .hbe-button:hover,
+[data-theme="dark"] .hbe-button:focus {
+  background: #7089fb;
+  box-shadow: 0 0 0 3px rgba(92, 124, 250, 0.35);
+}
+[data-theme="dark"] .hbe-error {
+  color: #ff7a7a;
+}
+[data-theme="dark"] .hbe-error:not(:empty) {
+  background: rgba(255, 122, 122, 0.12);
+}
