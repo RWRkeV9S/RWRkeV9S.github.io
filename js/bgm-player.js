@@ -2,9 +2,11 @@
    首页背景音乐播放器
    --------------------------------------------------------------------
    · 只在首页渲染（其他页面直接 return，不产生任何 DOM）
-   · 进页面先尝试自动播放；被浏览器策略拦下时显示「点我播放」，
+   · 默认是左下角一个 44px 小圆盘，进度用外圈圆环表示，不遮挡正文；
+     鼠标移上去才向右展开完整卡片（触屏设备不展开）
+   · 进页面先尝试自动播放；被浏览器策略拦下时圆环脉冲提示，
      并在用户第一次点击 / 按键后自动补播
-   · 手动暂停会记进 sessionStorage，本次会话内不再自动播
+   · 每次进首页都会自动播放；点圆盘在「暂停 / 继续」之间切换
    · 离开首页时记住播放位置，回到首页接着放
    ════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -23,9 +25,13 @@
   if (!(path === '/' || /\/index\.html?$/i.test(path))) return;
 
   var ICON_PLAY =
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.4v13.2a1 1 0 0 0 1.53.85l10.1-6.6a1 1 0 0 0 0-1.7L9.53 4.55A1 1 0 0 0 8 5.4z"/></svg>';
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.2v11.6a.9.9 0 0 0 1.38.76l8.9-5.8a.9.9 0 0 0 0-1.52l-8.9-5.8A.9.9 0 0 0 9 6.2z"/></svg>';
   var ICON_PAUSE =
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 4.6h3a1 1 0 0 1 1 1v12.8a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5.6a1 1 0 0 1 1-1zm6.6 0h3a1 1 0 0 1 1 1v12.8a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5.6a1 1 0 0 1 1-1z"/></svg>';
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 5.6h2.4a.8.8 0 0 1 .8.8v11.2a.8.8 0 0 1-.8.8H8.4a.8.8 0 0 1-.8-.8V6.4a.8.8 0 0 1 .8-.8zm4.8 0h2.4a.8.8 0 0 1 .8.8v11.2a.8.8 0 0 1-.8.8h-2.4a.8.8 0 0 1-.8-.8V6.4a.8.8 0 0 1 .8-.8z"/></svg>';
+
+  /* 圆环半径要和 CSS 里 44px 的 svg 对齐 */
+  var RING_R = 20.5;
+  var RING_C = 2 * Math.PI * RING_R;
 
   function fmtTime(sec) {
     if (!isFinite(sec) || sec < 0) sec = 0;
@@ -41,9 +47,15 @@
     root.setAttribute('role', 'region');
     root.setAttribute('aria-label', '背景音乐播放器');
     root.innerHTML =
-      '<div class="bgm-tip">点我播放 ♪</div>' +
-      '<div class="bgm-disc" title="播放 / 暂停"><img alt="" src="' + CFG.cover + '"></div>' +
-      '<div class="bgm-info">' +
+      '<button class="bgm-btn" type="button" aria-label="播放">' +
+        '<svg class="bgm-ring" viewBox="0 0 44 44" aria-hidden="true">' +
+          '<circle class="bgm-ring-track" cx="22" cy="22" r="' + RING_R + '"></circle>' +
+          '<circle class="bgm-ring-bar" cx="22" cy="22" r="' + RING_R + '"></circle>' +
+        '</svg>' +
+        '<img class="bgm-cover" alt="" src="' + CFG.cover + '">' +
+        '<span class="bgm-icon">' + ICON_PLAY + '</span>' +
+      '</button>' +
+      '<div class="bgm-panel">' +
         '<div class="bgm-head">' +
           '<span class="bgm-title"></span>' +
           '<span class="bgm-dot"></span>' +
@@ -56,19 +68,21 @@
           '</div>' +
           '<span class="bgm-time">0:00 / 0:00</span>' +
         '</div>' +
-      '</div>' +
-      '<button class="bgm-toggle" type="button" aria-label="播放">' + ICON_PLAY + '</button>';
+      '</div>';
 
     root.querySelector('.bgm-title').textContent = CFG.title;
     root.querySelector('.bgm-artist').textContent = CFG.artist;
 
-    var $disc = root.querySelector('.bgm-disc');
+    var $btn = root.querySelector('.bgm-btn');
+    var $icon = root.querySelector('.bgm-icon');
+    var $ring = root.querySelector('.bgm-ring-bar');
     var $bar = root.querySelector('.bgm-bar');
     var $fill = $bar.querySelector('i');
     var $thumb = $bar.querySelector('b');
     var $time = root.querySelector('.bgm-time');
-    var $toggle = root.querySelector('.bgm-toggle');
-    var $tip = root.querySelector('.bgm-tip');
+
+    $ring.style.strokeDasharray = String(RING_C);
+    $ring.style.strokeDashoffset = String(RING_C);
 
     /* ── audio ── */
     var audio = new Audio();
@@ -81,8 +95,8 @@
     function setPlaying(on) {
       root.classList.toggle('is-playing', on);
       root.dataset.state = on ? 'playing' : 'paused';
-      $toggle.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
-      $toggle.setAttribute('aria-label', on ? '暂停' : '播放');
+      $icon.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+      $btn.setAttribute('aria-label', on ? '暂停' : '播放');
     }
 
     function setBlocked(on) {
@@ -94,6 +108,9 @@
       var d = audio.duration || 0;
       var t = audio.currentTime || 0;
       var pct = d ? (t / d) * 100 : 0;
+      /* 圆环 */
+      $ring.style.strokeDashoffset = String(RING_C * (1 - pct / 100));
+      /* 展开面板里的进度条 */
       $fill.style.width = pct + '%';
       $thumb.style.left = pct + '%';
       $time.textContent = fmtTime(t) + ' / ' + fmtTime(d);
@@ -115,14 +132,12 @@
     function pause() {
       audio.pause();
       try {
-        sessionStorage.setItem('bgm_paused', '1');
         sessionStorage.setItem('bgm_time', String(audio.currentTime || 0));
       } catch (e) { /* 隐私模式下 sessionStorage 可能不可用 */ }
     }
 
     function toggle() {
       if (audio.paused) {
-        try { sessionStorage.removeItem('bgm_paused'); } catch (e) {}
         play();
       } else {
         pause();
@@ -161,6 +176,7 @@
 
     $bar.addEventListener('pointerdown', function (e) {
       e.preventDefault();
+      e.stopPropagation();
       seekTo(e.clientX);
       if ($bar.setPointerCapture) {
         try { $bar.setPointerCapture(e.pointerId); } catch (err) {}
@@ -188,12 +204,7 @@
     });
 
     /* ── 事件 ── */
-    $toggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggle();
-    });
-
-    $disc.addEventListener('click', toggle);
+    $btn.addEventListener('click', toggle);
 
     audio.addEventListener('playing', function () {
       setBlocked(false);
@@ -203,6 +214,8 @@
     audio.addEventListener('pause', function () {
       setPlaying(false);
     });
+
+    var lastSave = 0;
 
     audio.addEventListener('timeupdate', function () {
       setProgress();
@@ -214,13 +227,12 @@
     });
 
     audio.addEventListener('loadedmetadata', setProgress);
+
     audio.addEventListener('error', function () {
       root.dataset.state = 'error';
-      $tip.textContent = '音频加载失败';
-      setBlocked(true);
+      setPlaying(false);
+      $btn.setAttribute('aria-label', '音频加载失败');
     });
-
-    var lastSave = 0;
 
     window.addEventListener('pagehide', function () {
       try { sessionStorage.setItem('bgm_time', String(audio.currentTime || 0)); } catch (e) {}
@@ -228,9 +240,6 @@
 
     /* ── 挂载 ── */
     document.body.appendChild(root);
-    requestAnimationFrame(function () {
-      root.classList.add('is-ready');
-    });
     setProgress();
 
     /* ── 接着上次的位置 ── */
@@ -247,15 +256,9 @@
       audio.addEventListener('loadedmetadata', restore);
     }
 
-    /* ── 进页面就播 ── */
-    var wasPaused = false;
-    try { wasPaused = sessionStorage.getItem('bgm_paused') === '1'; } catch (e) {}
-    if (wasPaused) {
-      setPlaying(false);
-    } else {
-      root.dataset.state = 'loading';
-      play();
-    }
+    /* ── 进页面就播（每次进首页都播；点圆盘暂停） ── */
+    root.dataset.state = 'loading';
+    play();
   }
 
   if (document.readyState === 'loading') {
