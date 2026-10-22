@@ -7,7 +7,8 @@
      没有展开面板，不遮挡正文
    · 进页面先尝试自动播放；浏览器不允许有声自动播放时，
      退成「静音自动播放」，用户第一次点 / 滚 / 按键就立刻出声
-   · 点圆环 = 暂停 / 继续
+   · 左键 = 暂停 / 从当前位置继续
+   · 右键 = 从头开始放（拦掉系统菜单）
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -41,7 +42,8 @@
     root.setAttribute('aria-label', '背景音乐播放器');
     root.innerHTML =
       '<button class="bgm-btn" type="button" aria-label="播放"' +
-        ' title="' + CFG.title + ' / ' + CFG.artist + ' · 点击播放或暂停">' +
+        ' title="' + CFG.title + ' / ' + CFG.artist +
+        ' · 左键播放或暂停，右键从头播放">' +
         '<svg class="bgm-ring" viewBox="0 0 44 44" aria-hidden="true">' +
           '<circle class="bgm-ring-track" cx="22" cy="22" r="' + RING_R + '"></circle>' +
           '<circle class="bgm-ring-bar" cx="22" cy="22" r="' + RING_R + '"></circle>' +
@@ -119,6 +121,27 @@
       } else {
         pause();
       }
+    }
+
+    /* ── 右键：不管现在放到哪，一律回到 0:00 重新放 ── */
+    function restart() {
+      disarmUnmute();
+      root.classList.remove('is-muted-wait');
+      audio.muted = false;
+      audio.volume = CFG.volume;
+      try { audio.currentTime = 0; } catch (e) { /* 元数据还没到，等 loadedmetadata */ }
+      if (audio.readyState < 1) {
+        var seekZero = function () {
+          audio.removeEventListener('loadedmetadata', seekZero);
+          try { audio.currentTime = 0; } catch (e) {}
+          setProgress();
+        };
+        audio.addEventListener('loadedmetadata', seekZero);
+      }
+      setBlocked(false);
+      setProgress();
+      try { sessionStorage.setItem('bgm_time', '0'); } catch (e) {}
+      play();
     }
 
     /* ── 静音自动播放 + 首次交互解除静音 ── */
@@ -202,7 +225,59 @@
     }
 
     /* ── 事件 ── */
-    $btn.addEventListener('click', toggle);
+    /* 长按后浏览器还会补一个 click，用它挡掉，免得刚从头放又被暂停 */
+    var longPressed = false;
+
+    $btn.addEventListener('click', function (e) {
+      if (longPressed) {
+        longPressed = false;
+        e.preventDefault();
+        return;
+      }
+      toggle();
+    });
+
+    /* 右键从头放：先拦掉浏览器自带的右键菜单 */
+    $btn.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      restart();
+    });
+
+    /* 触屏：部分环境长按不派发 contextmenu，自己识别一次长按 */
+    var pressTimer = null;
+    var pressStart = null;
+
+    function cancelPress() {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    }
+
+    $btn.addEventListener('touchstart', function (e) {
+      var t = e.touches && e.touches[0];
+      pressStart = t ? { x: t.clientX, y: t.clientY } : null;
+      cancelPress();
+      pressTimer = setTimeout(function () {
+        pressTimer = null;
+        longPressed = true;
+        restart();
+        setTimeout(function () { longPressed = false; }, 800);
+      }, 550);
+    }, { passive: true });
+
+    $btn.addEventListener('touchmove', function (e) {
+      if (!pressTimer || !pressStart) return;
+      var t = e.touches && e.touches[0];
+      if (!t) return;
+      if (Math.abs(t.clientX - pressStart.x) > 10 || Math.abs(t.clientY - pressStart.y) > 10) {
+        cancelPress();
+      }
+    }, { passive: true });
+
+    $btn.addEventListener('touchend', cancelPress, { passive: true });
+    $btn.addEventListener('touchcancel', cancelPress, { passive: true });
 
     audio.addEventListener('playing', function () {
       setBlocked(false);

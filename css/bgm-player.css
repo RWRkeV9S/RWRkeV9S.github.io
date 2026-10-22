@@ -36,6 +36,8 @@
   background: transparent;
   cursor: pointer;
   outline: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bgm-cover {
