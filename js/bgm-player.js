@@ -2,12 +2,12 @@
    首页背景音乐播放器
    --------------------------------------------------------------------
    · 只在首页渲染（其他页面直接 return，不产生任何 DOM）
-   · 默认是左下角一个 44px 小圆盘，进度用外圈圆环表示，不遮挡正文；
-     鼠标移上去才向右展开完整卡片（触屏设备不展开）
-   · 进页面先尝试自动播放；被浏览器策略拦下时圆环脉冲提示，
-     并在用户第一次点击 / 按键后自动补播
-   · 每次进首页都会自动播放；点圆盘在「暂停 / 继续」之间切换
-   · 离开首页时记住播放位置，回到首页接着放
+   · 形态永远只有左下角一个 44px 小圆环：
+       中间是旋转的专辑封面，外圈圆环 = 播放进度，鼠标移上去出现 ▶ / ⏸
+     没有展开面板，不遮挡正文
+   · 进页面先尝试自动播放；浏览器不允许有声自动播放时，
+     退成「静音自动播放」，用户第一次点 / 滚 / 按键就立刻出声
+   · 点圆环 = 暂停 / 继续
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -29,57 +29,30 @@
   var ICON_PAUSE =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 5.6h2.4a.8.8 0 0 1 .8.8v11.2a.8.8 0 0 1-.8.8H8.4a.8.8 0 0 1-.8-.8V6.4a.8.8 0 0 1 .8-.8zm4.8 0h2.4a.8.8 0 0 1 .8.8v11.2a.8.8 0 0 1-.8.8h-2.4a.8.8 0 0 1-.8-.8V6.4a.8.8 0 0 1 .8-.8z"/></svg>';
 
-  /* 圆环半径要和 CSS 里 44px 的 svg 对齐 */
+  /* 圆环半径，和 CSS 里 44px 的 svg 对齐 */
   var RING_R = 20.5;
   var RING_C = 2 * Math.PI * RING_R;
 
-  function fmtTime(sec) {
-    if (!isFinite(sec) || sec < 0) sec = 0;
-    var m = Math.floor(sec / 60);
-    var s = Math.floor(sec % 60);
-    return m + ':' + (s < 10 ? '0' + s : s);
-  }
-
   function init() {
-    /* ── DOM ── */
+    /* ── DOM：只有一个圆环 ── */
     var root = document.createElement('div');
     root.className = 'bgm-player';
     root.setAttribute('role', 'region');
     root.setAttribute('aria-label', '背景音乐播放器');
     root.innerHTML =
-      '<button class="bgm-btn" type="button" aria-label="播放">' +
+      '<button class="bgm-btn" type="button" aria-label="播放"' +
+        ' title="' + CFG.title + ' / ' + CFG.artist + ' · 点击播放或暂停">' +
         '<svg class="bgm-ring" viewBox="0 0 44 44" aria-hidden="true">' +
           '<circle class="bgm-ring-track" cx="22" cy="22" r="' + RING_R + '"></circle>' +
           '<circle class="bgm-ring-bar" cx="22" cy="22" r="' + RING_R + '"></circle>' +
         '</svg>' +
         '<img class="bgm-cover" alt="" src="' + CFG.cover + '">' +
         '<span class="bgm-icon">' + ICON_PLAY + '</span>' +
-      '</button>' +
-      '<div class="bgm-panel">' +
-        '<div class="bgm-head">' +
-          '<span class="bgm-title"></span>' +
-          '<span class="bgm-dot"></span>' +
-          '<span class="bgm-artist"></span>' +
-        '</div>' +
-        '<div class="bgm-foot">' +
-          '<div class="bgm-bar" role="slider" tabindex="0" aria-label="播放进度"' +
-            ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
-            '<i></i><b></b>' +
-          '</div>' +
-          '<span class="bgm-time">0:00 / 0:00</span>' +
-        '</div>' +
-      '</div>';
-
-    root.querySelector('.bgm-title').textContent = CFG.title;
-    root.querySelector('.bgm-artist').textContent = CFG.artist;
+      '</button>';
 
     var $btn = root.querySelector('.bgm-btn');
     var $icon = root.querySelector('.bgm-icon');
     var $ring = root.querySelector('.bgm-ring-bar');
-    var $bar = root.querySelector('.bgm-bar');
-    var $fill = $bar.querySelector('i');
-    var $thumb = $bar.querySelector('b');
-    var $time = root.querySelector('.bgm-time');
 
     $ring.style.strokeDasharray = String(RING_C);
     $ring.style.strokeDashoffset = String(RING_C);
@@ -95,6 +68,7 @@
     function setPlaying(on) {
       root.classList.toggle('is-playing', on);
       root.dataset.state = on ? 'playing' : 'paused';
+      root.dataset.muted = audio.muted ? '1' : '0';
       $icon.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
       $btn.setAttribute('aria-label', on ? '暂停' : '播放');
     }
@@ -108,16 +82,15 @@
       var d = audio.duration || 0;
       var t = audio.currentTime || 0;
       var pct = d ? (t / d) * 100 : 0;
-      /* 圆环 */
       $ring.style.strokeDashoffset = String(RING_C * (1 - pct / 100));
-      /* 展开面板里的进度条 */
-      $fill.style.width = pct + '%';
-      $thumb.style.left = pct + '%';
-      $time.textContent = fmtTime(t) + ' / ' + fmtTime(d);
-      $bar.setAttribute('aria-valuenow', String(Math.round(pct)));
     }
 
-    /* ── 播放控制 ── */
+    /* ── 播放控制 ──
+       浏览器不允许「有声音的自动播放」。策略：
+       1) 先直接 play()——如果浏览器已经允许，就正常出声
+       2) 被拒 → 退成静音播放，歌其实已经在走，只是没声音
+       3) 用户第一次点 / 滚 / 按键 → 解除静音，声音立刻出来
+       4) 连静音都被拒（少数环境）→ 等第一次交互再直接播 */
     function play() {
       var pr = audio.play();
       if (pr && typeof pr.catch === 'function') {
@@ -137,11 +110,76 @@
     }
 
     function toggle() {
+      if (audio.muted) {          /* 还在「静音待启动」，点一下先开声音 */
+        unmute();
+        return;
+      }
       if (audio.paused) {
         play();
       } else {
         pause();
       }
+    }
+
+    /* ── 静音自动播放 + 首次交互解除静音 ── */
+    var unmuteEvents = null;
+
+    function disarmUnmute() {
+      if (!unmuteEvents) return;
+      unmuteEvents.forEach(function (pair) {
+        document.removeEventListener(pair[0], pair[1], true);
+      });
+      unmuteEvents = null;
+    }
+
+    function unmute() {
+      disarmUnmute();
+      root.classList.remove('is-muted-wait');
+      if (!audio.muted) return;
+      audio.muted = false;
+      audio.volume = CFG.volume;
+      if (audio.paused) play();
+    }
+
+    function armUnmute() {
+      if (unmuteEvents) return;
+      var events = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+      unmuteEvents = events.map(function (name) {
+        var handler = function (e) {
+          /* 点在圆环自己身上就交给 toggle，别抢 */
+          if (root.contains(e.target)) return;
+          unmute();
+        };
+        document.addEventListener(name, handler, true);
+        return [name, handler];
+      });
+    }
+
+    function markMutedWait() {
+      root.classList.add('is-muted-wait');
+      root.dataset.state = 'muted';
+      setPlaying(true);          /* 静音也算在播，圆环照常转 */
+      armUnmute();
+    }
+
+    function startAutoplay() {
+      audio.muted = false;
+      var pr = audio.play();
+      if (!pr || typeof pr.catch !== 'function') return;
+      pr.catch(function () {
+        audio.muted = true;
+        var pr2 = audio.play();
+        if (!pr2 || typeof pr2.catch !== 'function') {
+          markMutedWait();
+          return;
+        }
+        pr2.then(markMutedWait, function () {
+          audio.muted = false;
+          setBlocked(true);
+          setPlaying(false);
+          armResume();
+        });
+      });
     }
 
     /* ── 被拦后：等用户第一次交互再补播 ── */
@@ -150,58 +188,18 @@
       if (armed) return;
       armed = true;
       var events = ['pointerdown', 'keydown', 'touchstart'];
-      function handler() {
-        events.forEach(function (e) {
-          document.removeEventListener(e, handler, true);
+      function handler(e) {
+        if (root.contains(e.target)) return;
+        events.forEach(function (n) {
+          document.removeEventListener(n, handler, true);
         });
         armed = false;
         if (audio.paused) play();
       }
-      events.forEach(function (e) {
-        document.addEventListener(e, handler, true);
+      events.forEach(function (n) {
+        document.addEventListener(n, handler, true);
       });
     }
-
-    /* ── 进度条拖动 / 点击 ── */
-    function seekTo(clientX) {
-      var r = $bar.getBoundingClientRect();
-      if (!r.width) return;
-      var pct = (clientX - r.left) / r.width;
-      pct = Math.min(1, Math.max(0, pct));
-      if (audio.duration) {
-        audio.currentTime = pct * audio.duration;
-        setProgress();
-      }
-    }
-
-    $bar.addEventListener('pointerdown', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      seekTo(e.clientX);
-      if ($bar.setPointerCapture) {
-        try { $bar.setPointerCapture(e.pointerId); } catch (err) {}
-      }
-      var onMove = function (ev) { seekTo(ev.clientX); };
-      var onUp = function () {
-        $bar.removeEventListener('pointermove', onMove);
-        $bar.removeEventListener('pointerup', onUp);
-        $bar.removeEventListener('pointercancel', onUp);
-      };
-      $bar.addEventListener('pointermove', onMove);
-      $bar.addEventListener('pointerup', onUp);
-      $bar.addEventListener('pointercancel', onUp);
-    });
-
-    $bar.addEventListener('keydown', function (e) {
-      var step = 0;
-      if (e.key === 'ArrowLeft') step = -5;
-      else if (e.key === 'ArrowRight') step = 5;
-      else if (e.key === 'Home') { audio.currentTime = 0; setProgress(); return; }
-      else return;
-      e.preventDefault();
-      audio.currentTime = Math.min(audio.duration || 0, Math.max(0, audio.currentTime + step));
-      setProgress();
-    });
 
     /* ── 事件 ── */
     $btn.addEventListener('click', toggle);
@@ -256,9 +254,9 @@
       audio.addEventListener('loadedmetadata', restore);
     }
 
-    /* ── 进页面就播（每次进首页都播；点圆盘暂停） ── */
-    root.dataset.state = 'loading';
-    play();
+    /* ── 进页面就播；清掉旧版留下的「暂停过就别自动播」标记 ── */
+    try { sessionStorage.removeItem('bgm_paused'); } catch (e) {}
+    startAutoplay();
   }
 
   if (document.readyState === 'loading') {

@@ -1,12 +1,11 @@
 /* ════════════════════════════════════════════════════════════════════
    首页背景音乐播放器
    --------------------------------------------------------------------
-   默认只有一个 44px 的小圆盘（进度用外圈圆环表示），不遮挡正文；
-   鼠标移上去（或键盘聚焦）才向右展开完整卡片。
+   永远只有一个 44px 的小圆环，不展开、不遮挡正文。
+   中间是旋转的专辑封面，外圈圆环 = 播放进度。
    由 source/js/bgm-player.js 在首页创建 DOM，非首页不渲染。
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── 容器：只有圆盘那么大 ── */
 .bgm-player {
   position: fixed;
   left: 18px;
@@ -25,7 +24,7 @@
   opacity: 1;
 }
 
-/* ── 圆盘按钮 ── */
+/* ── 圆环按钮 ── */
 .bgm-btn {
   position: relative;
   display: block;
@@ -83,7 +82,7 @@
   transition: stroke-dashoffset .25s linear;
 }
 
-/* ── 中间的播放/暂停图标：暂停时和悬停时才显示 ── */
+/* ── 中间的 ▶ / ⏸：暂停时一直显示，播放时只在悬停出现 ── */
 .bgm-icon {
   position: absolute;
   left: 50%;
@@ -118,129 +117,9 @@
   filter: brightness(.55);
 }
 
-/* ── 展开面板（悬停才出现，绝对定位，不撑开布局） ── */
-.bgm-panel {
-  position: absolute;
-  left: calc(100% + 10px);
-  bottom: 0;
-  width: 232px;
-  padding: 9px 12px 10px;
-  border-radius: 12px;
-  background: rgba(26, 30, 38, .92);
-  border: 1px solid rgba(255, 255, 255, .08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  backdrop-filter: blur(14px) saturate(150%);
-  color: #e8ecf4;
-  opacity: 0;
-  transform: translateX(-6px);
-  pointer-events: none;
-  transition: opacity .22s ease, transform .22s ease;
-}
-
-.bgm-player:hover .bgm-panel,
-.bgm-player:focus-within .bgm-panel {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-
-.bgm-head {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  min-width: 0;
-  margin-bottom: 7px;
-}
-
-.bgm-title {
-  flex: 0 1 auto;
-  min-width: 0;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bgm-dot {
-  flex: none;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #5b6477;
-}
-
-.bgm-artist {
-  flex: none;
-  font-size: 11px;
-  color: #8b95a8;
-  white-space: nowrap;
-}
-
-.bgm-foot {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bgm-bar {
-  position: relative;
-  flex: 1 1 auto;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  outline: none;
-}
-
-.bgm-bar::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, .14);
-}
-
-.bgm-bar > i {
-  position: absolute;
-  left: 0;
-  height: 3px;
-  width: 0;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #5C7CFA, #93a4ff);
-}
-
-.bgm-bar > b {
-  position: absolute;
-  left: 0;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
-  opacity: 0;
-  transition: opacity .2s;
-}
-
-.bgm-player:hover .bgm-bar > b,
-.bgm-bar:focus-visible > b {
-  opacity: 1;
-}
-
-.bgm-time {
-  flex: none;
-  font-size: 10px;
-  line-height: 1;
-  color: #7b859a;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── 自动播放被拦：圆环脉冲 + 一直显示 ▶ ── */
-.bgm-player.is-blocked .bgm-ring {
+/* ── 需要用户点一下才出声时，圆环轻微脉冲（不弹任何文字） ── */
+.bgm-player.is-blocked .bgm-ring,
+.bgm-player.is-muted-wait .bgm-ring {
   border-radius: 50%;
   animation: bgm-pulse 1.9s ease-out infinite;
 }
@@ -256,67 +135,35 @@
   stroke: rgba(0, 0, 0, .14);
 }
 
-[data-theme="light"] .bgm-panel {
-  background: rgba(255, 255, 255, .94);
-  border-color: rgba(0, 0, 0, .08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
-  color: #2b3040;
-}
-
-[data-theme="light"] .bgm-artist,
-[data-theme="light"] .bgm-time {
-  color: #6b7488;
-}
-
-[data-theme="light"] .bgm-bar::before {
-  background: rgba(0, 0, 0, .12);
-}
-
-[data-theme="light"] .bgm-bar > b {
-  background: #5C7CFA;
-}
-
-/* ── 触屏：没有 hover，面板不展开，只留圆盘 ── */
-@media (hover: none) {
-  .bgm-panel {
-    display: none;
-  }
-}
-
 /* ── 移动端再收一点 ── */
 @media (max-width: 767px) {
+  .bgm-player,
+  .bgm-btn,
+  .bgm-ring {
+    width: 40px;
+    height: 40px;
+  }
+
   .bgm-player {
     left: 12px;
     bottom: 12px;
-    width: 40px;
-    height: 40px;
-  }
-
-  .bgm-btn {
-    width: 40px;
-    height: 40px;
   }
 
   .bgm-cover {
     width: 34px;
     height: 34px;
   }
-
-  .bgm-ring {
-    width: 40px;
-    height: 40px;
-  }
 }
 
 /* ── 尊重「减少动态效果」 ── */
 @media (prefers-reduced-motion: reduce) {
   .bgm-player.is-playing .bgm-cover,
-  .bgm-player.is-blocked .bgm-ring {
+  .bgm-player.is-blocked .bgm-ring,
+  .bgm-player.is-muted-wait .bgm-ring {
     animation: none;
   }
 
-  .bgm-player,
-  .bgm-panel {
+  .bgm-player {
     transition: none;
   }
 }
