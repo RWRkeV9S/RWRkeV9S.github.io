@@ -56,3 +56,62 @@
     width: calc(50% - 15px);
   }
 }
+
+/* ── 侧栏标签云：所有标签统一大小和颜色 ──────────────────────────
+ * 主题默认按「文章数」缩放字号并做颜色渐变，这两个值写死在
+ * node_modules/hexo-theme-butterfly/layout/includes/widget/card_tags.pug 里
+ * （tagcloud({ min_font: 1.1, max_font: 1.5, start_color: '#999', end_color: '#99a9bf' })），
+ * 配置文件里没有开关可以改。实测效果：
+ *   1 篇 -> font-size: 1.1em; color: #999
+ *   2 篇 -> font-size: 1.5em; color: #99a9bf
+ * 于是文章多的标签又大又亮，几个标签排在一起参差不齐。
+ *
+ * 这里统一成同一号字 + 同一个颜色：
+ *   字号取主题自己的最小值 1.1em（多数标签本来就是这么大，改完等于只有多篇的标签缩小）
+ *   颜色取主题渐变的终点色 #99a9bf（冷调蓝灰，比 #999 略亮，在深色侧栏上更清楚）
+ *
+ * 字号/颜色是写在 HTML 的 inline style 上的，内联样式优先级最高，
+ * 必须 !important 才压得住。
+ * 主题的 :hover 规则（.card-tag-cloud a:hover）比这里更具体，悬停变色依然正常。
+ *
+ * 想统一改成别的字号，只改下面这一行数字即可。
+ */
+.card-tag-cloud a {
+  font-size: 1.1em !important;
+  color: #99a9bf !important;
+}
+
+/* ── 文章加密框：跟随站点暗色 ────────────────────────────────────
+ * hexo-blog-encrypt 自带的 hbe.style.css 只在 @media (prefers-color-scheme: dark)
+ * 下切暗色，也就是「跟随操作系统」。本站的暗色却是主题挂在
+ * <html data-theme="dark"> 上的（layout/includes/layout.pug 第 9 行），两者不同步：
+ * 系统亮色 + 站点暗色时，密码框会是浅灰底(#f0f0f0) + 灰标签(#696969)，很扎眼。
+ *
+ * 所以按 data-theme 属性再补一套，颜色对齐站点主色 #5C7CFA。
+ * 主题配置里 display_mode: dark 是默认暗色，这套属于常态。
+ * 浅色模式（data-theme="light"）仍用插件自带的默认值，不用管。
+ */
+[data-theme="dark"] .hbe-input-field {
+  background: #2b2f38;
+  color: #e6e6e6;
+}
+[data-theme="dark"] .hbe-input-label {
+  color: #cfd6e4;
+}
+[data-theme="dark"] .hbe-button {
+  background: #5C7CFA;
+  border-bottom-color: #4462d6;
+  color: #fff;
+  text-shadow: none;
+}
+[data-theme="dark"] .hbe-button:hover,
+[data-theme="dark"] .hbe-button:focus {
+  background: #7089fb;
+  box-shadow: 0 0 0 3px rgba(92, 124, 250, 0.35);
+}
+[data-theme="dark"] .hbe-error {
+  color: #ff7a7a;
+}
+[data-theme="dark"] .hbe-error:not(:empty) {
+  background: rgba(255, 122, 122, 0.12);
+}
