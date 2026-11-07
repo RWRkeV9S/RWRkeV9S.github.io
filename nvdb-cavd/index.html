@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>NVDB\-CAVD汽车信息安全秋季赛小记 | Eddy's Blog</title><meta name="author" content="Eddy_R"><meta name="copyright" content="Eddy_R"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="这篇文章被加密了，请输入密码查看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVDB\-CAVD汽车信息安全秋季赛小记">
+<meta property="og:url" content="https://rwrkev9s.github.io/nvdb-cavd/index.html">
+<meta property="og:site_name" content="Eddy&#39;s Blog">
+<meta property="og:description" content="这篇文章被加密了，请输入密码查看。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rwrkev9s.github.io/img/nvdb-cavd-cover.jpg">
+<meta property="article:published_time" content="2026-11-07T17:36:33.000Z">
+<meta property="article:modified_time" content="2026-11-07T17:37:31.192Z">
+<meta property="article:author" content="Eddy_R">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="else">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rwrkev9s.github.io/img/nvdb-cavd-cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "NVDB\\-CAVD汽车信息安全秋季赛小记",
+  "url": "https://rwrkev9s.github.io/nvdb-cavd/",
+  "image": "https://rwrkev9s.github.io/img/nvdb-cavd-cover.jpg",
+  "datePublished": "2026-11-07T17:36:33.000Z",
+  "dateModified": "2026-11-07T17:37:31.192Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Eddy_R",
+      "url": "https://rwrkev9s.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.svg"><link rel="canonical" href="https://rwrkev9s.github.io/nvdb-cavd/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'NVDB\-CAVD汽车信息安全秋季赛小记',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/bgm-player.css"><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Eddy's Blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/nvdb-cavd-top.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Eddy's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">NVDB\-CAVD汽车信息安全秋季赛小记</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">NVDB\-CAVD汽车信息安全秋季赛小记</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-11-07T17:36:33.000Z" title="发表于 2026-11-08 01:36:33">2026-11-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-11-07T17:37:31.192Z" title="更新于 2026-11-08 01:37:31">2026-11-08</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">552</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="hbe hbe-container" id="hexo-blog-encrypt"
+     data-hbe-format="4"
+     data-wpm="密码不对，再试试吧。"
+     data-whm="密码不对，再试试吧。"
+     data-salt="d2bea5a6cd30a1188978a86e9f35df0259df0ad9210085e24dc49ae540fd9055"
+     data-nonce="232e2919f4e9e0b062d08256"
+     data-kdf-iterations="250000"
+     data-auto-save="false">
+  <script id="hbeData" type="hbeData">
+    82836cbef226ec3b6ddf17618f864e8d32dc155bf7760ad969cac4c902e253f0b87baecce2efcbba22592eb47fb681b8dcaee9117cd6f72c8428ee804e8127ecdaeab60074fab5d3126a91202f70999b45c3bb745b230e5b0581b46b863f865f70d2d8284482c9ce638393f85e2e128ebd47ef23a3d389bc9aeb2d3b3d3a94de2831bcaa307f58bcda0aef8a8930a625a2e3d72071f846f0afe3d1680063279f80dc8318bda56d44e40bc1cf60dbed442e03338e6d05a74759553d61a496769f4513ae47b4e951932218aeaf2844a2b934ac7f0e14851acaf2a62e4d0ac9d2760ed717b2e6db0dc7888bbe8805a37e1a9fed214f429dbf7b231b9d4cdfc6dd46e42534bd4898c81e41726c92a6d9802dbfecef8a5bcfd0732f75375383dd80b35aa5a5ecf2b037ca20030618a6678d6eb59fde900a2e3332eaf75d3d730c431b58269d9671d387a799f26a2eac99737c8cc7def2bb36200606cf55adc1886300aebea13be13c1b19b143071f99f1b1c9031e2ab2211e41f414582980d7977d935c7df9c866b5c28e5ba21b982dd9471a157849ca87007ddb0f3ef24b831a5d2438e4d3d80c9ee16d91027fa1a60696497c33b8e51dffd266e813c8d7bc051d6496e55478f36aa308ca907fed07052af80a3b226136755ac804e7429a38a811e2a0107c97dfed677c3807ab117855076d3b0f699533aab289ab45f68150ba55c1cd9cd2c8bf3804fad60a6006a3aa852d7aa9884033dc7f61bfd413673b533a924e0ad40fd5684d0fcd4b46c768b04b3b4b45a03abc2d71a80d40977a28fdd06b405da282b1b27144e29efac32c97a4205dacc9b1609976835b4bd78beaf899e665ef2d48f88f9be01abc4414ae751cc1548d53f10ecb2c26d8c1ffb73b8eceb1bb641f27608d479a348f842594a430f499339ba4585c47919d2bac9e145985c1722be37cd0a55592f81dd7ecd0add51cbdff642e822599d6293ec2c636aa4144d24721170d10f200988bd92127248a795bb15fb9f123b678507e49e6a66f1e03feb3ed13fc552a4ffe07eec3f3c74af82ef0a9f0f71f5ffc43eff78545a1a9a272d7cb14c29cefb5ba5b5ee5ccf87aa2148ce53ef5b6e8d12d414e8027031ed434b8ba19c0a050d871f840fac29dcf2eaa77eb3267a09d1a42e9c2a8ae2545bc63f364edd71f3eec72e970e50f24d441a8d08b5e54263b5514ce129edecbda04cdd00b163f749b063b8beb53869c03ad3bab72d90703f8114236bffe875199020e51911a87e8c0294857c6fcb342732140ad4720acf91887646b4efa5ee8cf3a0154797923a63b811d869910106f293f2eee4bef846567ab36ebd44a889656c18881585b25c36245abe320384a5bd2c786a5769d76e5cd4f118667dbb6bfe8867eff159b73b25fc60be63bf2941fa1cae3d50c1565358225ee92806a1cc40ae292e1211cde1ca86fd5d81fac49c3d00aba8cec81dc03105d4fe894556e3eca93106336778aa120d32a79c54ecc9cc7b0920eb54032bce4fcc1595859ae53e8a93d144d50f4c3ac5392cac5c1f64df974d51b2eab9d6982a9e180b19c2ecaf07424cafa3fcd63802602dc44d12be92a961a71ac1eea9f4f9cdba3be4fbdc6d75d747985c8f41e978457cbcde105e37c31d7d42ca69be53d477b02bdf34d933e0be977055329d50a9f74080a07c8d92025c61b18b2d51e554f0ec0eacb11c132fca1fac6ebd7259e0bc9a105a26e2b5a5ff21c3c8fe346528b008530b052ac04645d274d0ab296ebbcf5a7121356ad90d6b14623841890329b3de53c78b21c747e9f95fd4b3aca8928c9aba2ad4132718a74da803f0cbfba3b8524fcbebc795f185916aa59c828338b7fa648c5dd25d38cc24130ffb309848e125d70fba8f61b6a2aad091bfad81a20876b57773edbfac8771c3eb8014fb6ead168bc09d29d17ea7d396410e011371412057389b559ef27bf1feff7c4633b8025bde986a7b43e4e892b63adb516a64c2347ad71399902a25190c8c516515ff4a2d6577ee452e5c64943e7b890425260c12c4efc909d7896e6758555b4092e37c9cec9528508a677ef48a4192ee678a82231601ac4795551dc1f9cb7e77b9cd1dd3caaaf4216c44b55bb8d075a1a3872549662dd5a60e08a9d76c884d110858e53c2035ccd0502623299b07baa5e08a6e46cd8117264b84c2930b73d458f4a3a1d62a54b429ecae9d1cdd53d9f3ed11445a5c909ad13193e8d4e4d617cac6b75f2e6e7828ba234543ce295f60b0a6e8b6716e989cf11ed0d7fd24c136971030a9083d55b143aa775ef7a2f8fa91b6fb714b38d6428ca2111136c60c1ebc2689eaef4bd70ed8f746aa863f0e421c5f2aadfc69fe9fcb950004d21d65fba1ce61d413d83ae5402e1b996281c4bbd191012c425db6a112d8e4ecce2ebb7311985e0cb1ef4c5c5c847bd9de92d4e1004471067200be1cbe72165d6e30fd6727b4c397df4f5e9ec5a7feb7622c9a0e08a539f0cd1cc73bb74305f52acfed38038a5f38413e0f0a23d25ade7cd3b10be817c299b22a5b66f00538abd54e782c273ffd5552c5a7483c6a467d528d5c91d4397b605b4344184d89f6682e43edb7502a97aeaf994ffee451f4e8414f0b3107b06e51fc55e459ceddb1ccb1e9a83ae10826d03068a7894a24cda80156faf11037ac959480c52bcd582ca559e26f53853e14936a9de24d3eebd55d04bf580ae73ca05135d551b29dbbc6c42db465061dd9aef75e07a143df5268be55feb908251565aafbb4f950c53f6da48e04f9e2cf0ad4352821c8ec0f4b1a46dc3e9653a1b2d0df12744c924458ffe0ea155edf3b4262131406760611abe3fbf70a0bd025be6b9f94b91ec2ac71d3634d330635b7e94afcd0980151e1ae47ea544373ef0795d74eb13df321e43255a269d905b20f9ce3c4024a1af5edb69ad8ec87388ffd7c2673d6d191c379b64086557df5913e00582dd45f0f6c8ff3694a20d09c9a2889acfcb00a7df2f08c87f15bfe45f2accaee1ae94a4e31b499e96a9783be3f35d5d57e4d3e792d9dca6bb6de3bda9bc784260dc0a70e52c5b5afa62dc4c3ddacd64f820ead894368babb0105eaa6d92f24d14c833dee3ff4818d329d21f14dbab66aa94c5d40110e1210c44db4b36d10ce0a74d5da4e00d664b3366d1cf9e015ddff328f667ff90b5fa2811cc2a2e86c949a58198813058f1a15348fcc88909d223cd39f4df8ab014a765f1c039a4579c83ae68501c0f3d9556def3562fffb9516adef4cae770b3a4327389f9c9917a8027e45bd34e4f871cc3f98523962471a2c3defcb4b1b230099a9b31e8683e64328ad4ba4c797b2d51aeb5257a0542bae7cc90192592f420dbd2a4c4d7a81c06a228ae23cfad2b370aee699d1261b015f9c9e69f37ef82c2
+  </script>
+  <div class="hbe hbe-content">
+    <form id="hbeForm" class="hbe hbe-form" onsubmit="return false">
+      <div class="hbe hbe-input hbe-input-xray">
+      <input class="hbe hbe-input-field hbe-input-field-xray" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-xray" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-xray">请输入密码</span>
+      </label>
+      <svg class="hbe hbe-graphic hbe-graphic-xray" width="300%" height="100%" viewBox="0 0 1200 60" preserveAspectRatio="none">
+        <path d="M0,56.5c0,0,298.666,0,399.333,0C448.336,56.5,513.994,46,597,46c77.327,0,135,10.5,200.999,10.5c95.996,0,402.001,0,402.001,0"></path>
+        <path d="M0,2.5c0,0,298.666,0,399.333,0C448.336,2.5,513.994,13,597,13c77.327,0,135-10.5,200.999-10.5c95.996,0,402.001,0,402.001,0"></path>
+      </svg>
+    </div>
+      <button class="hbe hbe-button" type="submit">解密</button>
+      <div class="hbe hbe-error" role="alert" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.51dd9f3b98.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css"></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://rwrkev9s.github.io">Eddy_R</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://rwrkev9s.github.io/nvdb-cavd/">https://rwrkev9s.github.io/nvdb-cavd/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://rwrkev9s.github.io" target="_blank">Eddy's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a><a class="post-meta__tags" href="/tags/else/">else</a></div><div class="post-share"><div class="social-share" data-image="/img/nvdb-cavd-cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width no-desc" href="/post-20261030-1855/" title="哦耶，宿宿的舍"><img class="cover" src="/img/post-20261030-1855-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">哦耶，宿宿的舍</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related no-desc" href="/moectf-2026-writeup/" title="MoeCTF 2026 pwn 全解 &amp; 一些其他方向"><img class="cover" src="/img/moectf-cover.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-11</div><div class="info-item-2">MoeCTF 2026 pwn 全解 &amp; 一些其他方向</div></div></div></a><a class="pagination-related no-desc" href="/1024-ctf/" title="1024 快闪赛 · CTF 网络安全挑战赛"><img class="cover" src="/img/1024-ctf-cover.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-24</div><div class="info-item-2">1024 快闪赛 · CTF 网络安全挑战赛</div></div></div></a><a class="pagination-related no-desc" href="/post-20261019-1809/" title="人生是旷野！？"><img class="cover" src="/img/post-20261019-1809-cover.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-19</div><div class="info-item-2">人生是旷野！？</div></div></div></a><a class="pagination-related no-desc" href="/wp/" title="SGCTF!?"><img class="cover" src="/img/wp-cover.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-22</div><div class="info-item-2">SGCTF!?</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Eddy_R</div><div class="author-info-description">先生、人生相談です</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fa-solid fa-user"></i><span>About Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">愿世界和平,愿席美结婚</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content toc-div-class" style="display:none"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NVDB-CAVD%E6%B1%BD%E8%BD%A6%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E7%A7%8B%E5%AD%A3%E8%B5%9B%E5%B0%8F%E8%AE%B0"><span class="toc-number">1.</span> <span class="toc-text">NVDB-CAVD汽车信息安全秋季赛小记</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E5%88%B0%E7%9A%84%E4%B8%9C%E8%A5%BF"><span class="toc-number">1.1.</span> <span class="toc-text">学到的东西</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%A2%8E%E7%A2%8E%E5%BF%B5"><span class="toc-number">1.2.</span> <span class="toc-text">一些碎碎念</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/nvdb-cavd/" title="NVDB\-CAVD汽车信息安全秋季赛小记"><img src="/img/nvdb-cavd-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="NVDB\-CAVD汽车信息安全秋季赛小记"/></a><div class="content"><a class="title" href="/nvdb-cavd/" title="NVDB\-CAVD汽车信息安全秋季赛小记">NVDB\-CAVD汽车信息安全秋季赛小记</a><time datetime="2026-11-07T17:36:33.000Z" title="发表于 2026-11-08 01:36:33">2026-11-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post-20261030-1855/" title="哦耶，宿宿的舍"><img src="/img/post-20261030-1855-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="哦耶，宿宿的舍"/></a><div class="content"><a class="title" href="/post-20261030-1855/" title="哦耶，宿宿的舍">哦耶，宿宿的舍</a><time datetime="2026-10-30T10:55:33.000Z" title="发表于 2026-10-30 18:55:33">2026-10-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post-20261028-2107/" title="伪随机数模拟"><img src="/img/post-20261028-2107-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="伪随机数模拟"/></a><div class="content"><a class="title" href="/post-20261028-2107/" title="伪随机数模拟">伪随机数模拟</a><time datetime="2026-10-28T13:07:23.000Z" title="发表于 2026-10-28 21:07:23">2026-10-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/awa/" title="出题小记awa"><img src="/img/awa-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="出题小记awa"/></a><div class="content"><a class="title" href="/awa/" title="出题小记awa">出题小记awa</a><time datetime="2026-10-26T03:16:21.000Z" title="发表于 2026-10-26 11:16:21">2026-10-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/1024-ctf/" title="1024 快闪赛 · CTF 网络安全挑战赛"><img src="/img/1024-ctf-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1024 快闪赛 · CTF 网络安全挑战赛"/></a><div class="content"><a class="title" href="/1024-ctf/" title="1024 快闪赛 · CTF 网络安全挑战赛">1024 快闪赛 · CTF 网络安全挑战赛</a><time datetime="2026-10-24T12:10:33.000Z" title="发表于 2026-10-24 20:10:33">2026-10-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By Eddy_R</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/bgm-player.js" defer></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
